@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="camera_right">
 
-	<xacro:include filename="$(find gazebo_sensors_tutorial)/robot/sensors/_d415.urdf.xacro"/>
-	<xacro:include filename="$(find gazebo_sensors_tutorial)/robot/sensors/cam_holder.urdf.xacro"/>
+	<xacro:include filename="$(find camera_simulations)/robot/sensors/_d415.urdf.xacro"/>
+	<xacro:include filename="$(find camera_simulations)/robot/sensors/cam_holder.urdf.xacro"/>
 
 	<link name="chess_frame" />
 

@@ -527,7 +527,7 @@ This link is the base of the arm in which arm is placed
       <visual>
         <pose>0 0 0 0 0 0</pose>
         <geometry>
-          <mesh filename="$(find gazebo_sensors_tutorial)/models/aruco_cube/meshes/aruco_cube_5cm.dae">
+          <mesh filename="$(find camera_simulations)/models/aruco_cube/meshes/aruco_cube_5cm.dae">
           </mesh>
         </geometry>
       </visual>
@@ -551,7 +551,7 @@ This link is the base of the arm in which arm is placed
     </joint>
 
 
-  <xacro:include filename="$(find gazebo_sensors_tutorial)/robot/sensors/xtion_pro_live.urdf.xacro"/>
+  <xacro:include filename="$(find camera_simulations)/robot/sensors/xtion_pro_live.urdf.xacro"/>
 
 
 
