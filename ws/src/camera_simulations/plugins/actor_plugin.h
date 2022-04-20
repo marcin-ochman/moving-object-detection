@@ -10,6 +10,7 @@ namespace gazebo {
     public:
         ActorPlugin();
         void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) override;
+        void OnUpdate(const common::UpdateInfo &_info);
     };
 }
 #endif //CAMERA_SIMULATIONS_ACTOR_PLUGIN_H

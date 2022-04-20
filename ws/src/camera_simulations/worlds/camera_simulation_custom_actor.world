@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<sdf version="1.5">
+  <world name="camera_simulation">
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <include>
+      <uri>model://ground_plane</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://camera-plugin</uri>
+      <pose>0.0 0.0 0.15 0 0 0 0</pose>
+      <static>1</static>
+    </include>
+
+    <!-- test actor -->
+    <actor name="animated_box">
+        <link name="box_link">
+          <visual name="visual">
+            <geometry>
+              <box>
+                <size>.2 .2 .2</size>
+              </box>
+            </geometry>
+          </visual>
+        </link>
+          <plugin name="animated_box_plugin" filename="libactor_lib.so">
+          </plugin>
+      </actor>
+
+  </world>
+</sdf>
