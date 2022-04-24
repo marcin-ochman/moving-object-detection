@@ -10,7 +10,7 @@ class FeatureMatcher:
     def __init__(self):
         self.feature_detector = cv2.ORB_create()
         self.matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-        self.max_matches_number = rospy.get_param('max_matches_number', 10)
+        self.max_matches_number = rospy.get_param('/max_matches_number', 10)
 
     def get_descriptors(self, image):
         keypoints, descriptors = self.feature_detector.detectAndCompute(image, None)
