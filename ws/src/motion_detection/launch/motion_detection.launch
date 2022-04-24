@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<launch>
+  <arg name="image_topic" default="/camera/image_raw"/>
+
+  <include file="$(find camera_simulations)/launch/camera_coke_gazebo2.launch"/>
+
+  <node name="motion_detection_node" pkg="motion_detection" type="motion_detection_node.py">
+    <remap from="image" to="$(arg image_topic)" />
+  </node>
+</launch>
