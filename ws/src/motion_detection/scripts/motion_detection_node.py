@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 import rospy
 from cv_bridge import CvBridge, CvBridgeError
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, CameraInfo
 import cv2
 import numpy as np
-
 
 class FeatureMatcher:
     def __init__(self):
@@ -28,9 +27,15 @@ class FeatureMatcher:
 class MotionDetectionNode:
     def __init__(self):
         self.sub = rospy.Subscriber("image", Image, self.image_callback)
+        self.sub = rospy.Subscriber("camera_info", CameraInfo, self.camera_info_callback)
         self.cv_bridge = CvBridge()
         self.feature_matcher = FeatureMatcher()
         self.prev_image_points = {"keypoints": np.array([]), "descriptors": np.array([])}
+        self.K = []
+
+    def camera_info_callback(self, camera_info_msg):
+        if not self.K:
+            self.K = camera_info_msg.K
 
     def image_callback(self, image_msg):
         try:
@@ -41,7 +46,6 @@ class MotionDetectionNode:
         matches = self.feature_matcher.get_matches(self.prev_image_points.get("descriptors"),
                                                    current_points.get("descriptors"))
         self.prev_image_points = current_points
-
 
 if __name__ == '__main__':
     rospy.init_node('motion_detection_node', anonymous=True)

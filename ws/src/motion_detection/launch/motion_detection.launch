@@ -1,11 +1,11 @@
 <?xml version="1.0" ?>
 <launch>
-  <arg name="image_topic" default="/camera/image_raw"/>
+  <arg name="image_topic" default="/camera/color/image_raw"/>
   <arg name="max_matches_number" default="10"/>
 
   <rosparam param="/max_matches_number" subst_value="True">$(arg max_matches_number)</rosparam>
 
-  <include file="$(find camera_simulations)/launch/camera_flying_box_gazebo.launch"/>
+  <include file="$(find camera_simulations)/launch/kinect_flying_box_gazebo.launch"/>
 
   <node name="motion_detection_node" pkg="motion_detection" type="motion_detection_node.py">
     <remap from="image" to="$(arg image_topic)" />

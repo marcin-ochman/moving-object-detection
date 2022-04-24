@@ -4,6 +4,7 @@ project(motion_detection)
 find_package(catkin REQUIRED COMPONENTS
         cv_bridge
         rospy
+        sensor_msgs
         )
 find_package(OpenCV REQUIRED)
 
