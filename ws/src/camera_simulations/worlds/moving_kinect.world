@@ -11,6 +11,12 @@
       <pose>0 0 0 0 0 0</pose>
     </include>
 
+    <include>
+      <uri>model://bus</uri>
+      <pose>10 10 0 0 0 0</pose>
+      <static>1</static>
+    </include>
+
     <!-- test actor -->
     <actor name="animated_box">
     <include>
@@ -22,39 +28,39 @@
           <trajectory id="0" type="square">
              <waypoint>
                 <time>0.0</time>
-                <pose>0 1 0.15 0 0 0</pose>
+                <pose>0 1 1 0 0 0</pose>
              </waypoint>
              <waypoint>
                 <time>0.5</time>
-                <pose>0 0.5 0.15 0 0 0</pose>
+                <pose>0 0.5 1 0 0 0</pose>
              </waypoint>
              <waypoint>
                 <time>1.0</time>
-                <pose>0 0 0.15 0 0 0</pose>
+                <pose>0 0 1 0 0 0</pose>
              </waypoint>
              <waypoint>
                 <time>1.5</time>
-                <pose>0 -0.5 0.15 0 0 0</pose>
+                <pose>0 -0.5 1 0 0 0</pose>
              </waypoint>
              <waypoint>
                 <time>2.0</time>
-                <pose>0 -1 0.15 0 0 0</pose>
+                <pose>0 -1 1 0 0 0</pose>
              </waypoint>
              <waypoint>
                 <time>2.5</time>
-                <pose>0 -0.5 0.15 0 0 0</pose>
+                <pose>0 -0.5 1 0 0 0</pose>
              </waypoint>
              <waypoint>
                 <time>3.0</time>
-                <pose>0 0 0.15 0 0 0</pose>
+                <pose>0 0 1 0 0 0</pose>
              </waypoint>
              <waypoint>
                 <time>3.5</time>
-                <pose>0 0.5 0.15 0 0 0</pose>
+                <pose>0 0.5 1 0 0 0</pose>
              </waypoint>
              <waypoint>
                 <time>4.0</time>
-                <pose>0 1 0.15 0 0 0</pose>
+                <pose>0 1 1 0 0 0</pose>
              </waypoint>
           </trajectory>
         </script>

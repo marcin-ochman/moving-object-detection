@@ -19,5 +19,5 @@
     <arg name="headless" value="$(arg headless)"/>
   </include>
 
-
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find camera_simulations)/config/gazebo_simulation.rviz"/>
 </launch>
