@@ -19,6 +19,8 @@ namespace gazebo {
 
     physics::ActorPtr actor;
     ignition::math::Vector3d currentTarget;
+    double prev_time;
+    int sign;
 };
 }
 #endif //CAMERA_SIMULATIONS_ACTOR_PLUGIN_H

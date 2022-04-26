@@ -3,7 +3,9 @@
 namespace gazebo {
     ActorPlugin::ActorPlugin()
     {
-        currentTarget = ignition::math::Vector3d(1, 1, 0.15);
+        currentTarget = ignition::math::Vector3d(1, 0, 0.0);
+        sign = 1;
+        prev_time=0;
     }
 
     void ActorPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
@@ -14,20 +16,31 @@ namespace gazebo {
                 std::bind(&ActorPlugin::OnUpdate, this, std::placeholders::_1)));
     }
 
-    void ActorPlugin::OnUpdate(const common::UpdateInfo &_info)
+    void ActorPlugin::OnUpdate(const common::UpdateInfo &info)
     {
-        std::cout<< "Update" << std::endl;
-
+        double dt = (info.simTime - prev_time).Double();
+        //        std::cout<< "Update" << std::endl;
         ignition::math::Pose3d actorPose = actor->WorldPose();
+        auto distance = (currentTarget - actorPose.Pos()).Length();
 
-        std::cout<< "Distance: "<< actorPose.Pos() - currentTarget << std::endl;
-        actorPose.Pos() += ignition::math::Vector3d(0.01, 0.01, 0);
+        if(distance< 0.05)
+        {
+            sign *= -1;
+            currentTarget.X(currentTarget.X()*sign);
+        }
+
+        auto direction = (currentTarget - actorPose.Pos()).Normalize();
+        actorPose.Pos() += direction * dt * 0.25;
+
+//        std::cout<< "Distance: "<< actorPose.Pos() - currentTarget << std::endl;
+//        actorPose.Pos() += ignition::math::Vector3d(sign*dt, 0.0, 0);
 
         double distanceTraveled = (actorPose.Pos() -
                                    this->actor->WorldPose().Pos()).Length();
 
         actor->SetWorldPose(actorPose, false, false);
-        actor->SetScriptTime(actor->ScriptTime() + distanceTraveled);
+        actor->SetScriptTime(actor->ScriptTime() + (distanceTraveled * 4.4));
+        prev_time += dt;
     }
 
     GZ_REGISTER_MODEL_PLUGIN(ActorPlugin)

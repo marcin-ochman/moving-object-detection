@@ -11,15 +11,8 @@
       <pose>0 0 0 0 0 0</pose>
     </include>
 
-    <include>
-      <uri>model://camera-plugin</uri>
-      <pose>0.0 0.0 0.15 0 0 0 0</pose>
-      <static>1</static>
-    </include>
-
     <!-- test actor -->
     <actor name="animated_box">
-      <pose>0 0 1.25 0 0 0</pose>
         <link name="box_link">
           <visual name="visual">
             <geometry>
@@ -29,8 +22,7 @@
             </geometry>
           </visual>
         </link>
-          <plugin name="animated_box_plugin" filename="libactor_lib.so">
-          </plugin>
+          <plugin name="animated_box_plugin" filename="libactor_lib.so"/>
       </actor>
 
   </world>
