@@ -35,7 +35,7 @@
 
     <include>
       <uri>model://school</uri>
-      <pose>42 13 0 0 0 0</pose>
+      <pose>32 9 0 0 0 -1.55</pose>
       <static>1</static>
     </include>
 
