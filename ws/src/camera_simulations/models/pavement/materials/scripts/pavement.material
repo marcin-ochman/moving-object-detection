@@ -1,0 +1,13 @@
+material ground/Pavement
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture ../textures/pavement_texture.jpg
+      }
+    }
+  }
+}
