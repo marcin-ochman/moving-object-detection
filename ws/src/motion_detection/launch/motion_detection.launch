@@ -6,7 +6,9 @@
 
   <rosparam param="/max_matches_number" subst_value="True">$(arg max_matches_number)</rosparam>
 
-  <include file="$(find camera_simulations)/launch/gazebo_world.launch"/>
+  <include file="$(find camera_simulations)/launch/gazebo_world.launch">
+      <arg name="world_name" value="$(arg world_name)"/>
+  </include>
 
   <node name="motion_detection_node" pkg="motion_detection" type="motion_detection_node.py">
     <remap from="image" to="$(arg image_topic)" />
