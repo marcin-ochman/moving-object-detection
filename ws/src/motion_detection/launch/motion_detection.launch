@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <launch>
   <arg name="image_topic" default="/camera/color/image_raw"/>
+  <arg name="camera_info_topic" default="/camera/color/camera_info"/>
   <arg name="max_matches_number" default="10"/>
   <arg name="world_name" default="moving_kinect.world"/>
 
@@ -12,5 +13,6 @@
 
   <node name="motion_detection_node" pkg="motion_detection" type="motion_detection_node.py">
     <remap from="image" to="$(arg image_topic)" />
+    <remap from="camera_info" to="$(arg camera_info_topic)" />
   </node>
 </launch>
