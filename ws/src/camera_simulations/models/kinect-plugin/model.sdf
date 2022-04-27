@@ -40,6 +40,7 @@
         <plugin name="camera_plugin" filename="libgazebo_ros_openni_kinect.so">
           <baseline>0.2</baseline>
           <alwaysOn>true</alwaysOn>
+          <pointCloudCutoffMax>30.0</pointCloudCutoffMax>
           <!-- Keep this zero, update_rate in the parent <sensor> tag
             will control the frame rate. -->
           <updateRate>20.0</updateRate>

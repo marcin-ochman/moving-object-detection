@@ -11,8 +11,8 @@
       <arg name="world_name" value="$(arg world_name)"/>
   </include>
 
-  <node name="motion_detection_node" pkg="motion_detection" type="motion_detection_node.py">
-    <remap from="image" to="$(arg image_topic)" />
-    <remap from="camera_info" to="$(arg camera_info_topic)" />
-  </node>
+  <!-- <node name="motion_detection_node" pkg="motion_detection" type="motion_detection_node.py"> -->
+  <!--   <remap from="image" to="$(arg image_topic)" /> -->
+  <!--   <remap from="camera_info" to="$(arg camera_info_topic)" /> -->
+  <!-- </node> -->
 </launch>
