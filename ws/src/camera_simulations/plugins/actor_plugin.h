@@ -8,6 +8,15 @@
 #include "gazebo/physics/physics.hh"
 
 namespace gazebo {
+    struct Movement
+    {
+        double velocity;
+        double acceleration;
+        ignition::math::Vector3d startPosition;
+        ignition::math::Vector3d endPosition;
+    };
+
+
     class GZ_PLUGIN_VISIBLE ActorPlugin : public ModelPlugin {
     public:
     ActorPlugin();
@@ -22,6 +31,8 @@ namespace gazebo {
     ignition::math::Vector3d currentTarget;
     double prev_time;
     int sign;
+
+    Movement modelMovement;
 };
 }
 #endif //CAMERA_SIMULATIONS_ACTOR_PLUGIN_H

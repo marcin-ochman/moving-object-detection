@@ -1,6 +1,9 @@
 #include "actor_plugin.h"
 
 namespace gazebo {
+    constexpr double defaultVelocity = 0.5;
+    constexpr double defaultAcceleration = 0.0;
+
     ActorPlugin::ActorPlugin() : ModelPlugin()
     {
         currentTarget = ignition::math::Vector3d(1, 0, 0.0);
@@ -14,6 +17,16 @@ namespace gazebo {
         actor = boost::dynamic_pointer_cast<physics::Actor>(_model);
         connections.push_back(event::Events::ConnectWorldUpdateBegin(
                 std::bind(&ActorPlugin::OnUpdate, this, std::placeholders::_1)));
+
+        auto getParam = [_sdf]<class T>(const std::string& paramName, T defaultValue) {
+            if(_sdf->HasElement(paramName))
+                return _sdf->Get<double>(paramName);
+            else
+                return defaultValue;
+        };
+
+        modelMovement.velocity = getParam("velocity", defaultVelocity);
+        modelMovement.acceleration = getParam("acceleration", defaultAcceleration);
     }
 
     void ActorPlugin::OnUpdate(const common::UpdateInfo &info)
@@ -29,7 +42,7 @@ namespace gazebo {
         }
 
         auto direction = (currentTarget - actorPose.Pos()).Normalize();
-        actorPose.Pos() += direction * dt * 0.25;
+        actorPose.Pos() += direction * dt * modelMovement.velocity;
 
         double distanceTraveled = (actorPose.Pos() -
                                    this->actor->WorldPose().Pos()).Length();
@@ -37,6 +50,7 @@ namespace gazebo {
         actor->SetWorldPose(actorPose, true, true);
         actor->SetScriptTime(actor->ScriptTime() + (distanceTraveled ));
 
+        modelMovement.velocity += modelMovement.acceleration * dt;
         prev_time += dt;
     }
 
