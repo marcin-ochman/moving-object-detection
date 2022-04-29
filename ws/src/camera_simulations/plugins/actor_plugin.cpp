@@ -1,7 +1,7 @@
 #include "actor_plugin.h"
 
 namespace gazebo {
-    ActorPlugin::ActorPlugin()
+    ActorPlugin::ActorPlugin() : ModelPlugin()
     {
         currentTarget = ignition::math::Vector3d(1, 0, 0.0);
         sign = 1;
@@ -19,7 +19,6 @@ namespace gazebo {
     void ActorPlugin::OnUpdate(const common::UpdateInfo &info)
     {
         double dt = (info.simTime - prev_time).Double();
-        //        std::cout<< "Update" << std::endl;
         ignition::math::Pose3d actorPose = actor->WorldPose();
         auto distance = (currentTarget - actorPose.Pos()).Length();
 
@@ -32,14 +31,12 @@ namespace gazebo {
         auto direction = (currentTarget - actorPose.Pos()).Normalize();
         actorPose.Pos() += direction * dt * 0.25;
 
-//        std::cout<< "Distance: "<< actorPose.Pos() - currentTarget << std::endl;
-//        actorPose.Pos() += ignition::math::Vector3d(sign*dt, 0.0, 0);
-
         double distanceTraveled = (actorPose.Pos() -
                                    this->actor->WorldPose().Pos()).Length();
 
-        actor->SetWorldPose(actorPose, false, false);
-        actor->SetScriptTime(actor->ScriptTime() + (distanceTraveled * 4.4));
+        actor->SetWorldPose(actorPose, true, true);
+        actor->SetScriptTime(actor->ScriptTime() + (distanceTraveled ));
+
         prev_time += dt;
     }
 

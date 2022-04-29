@@ -18,6 +18,7 @@ namespace gazebo {
     std::vector <event::ConnectionPtr> connections;
 
     physics::ActorPtr actor;
+
     ignition::math::Vector3d currentTarget;
     double prev_time;
     int sign;
