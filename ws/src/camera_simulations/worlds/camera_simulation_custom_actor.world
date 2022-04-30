@@ -13,18 +13,12 @@
 
     <!-- test actor -->
     <actor name="animated_box">
-        <link name="box_link">
-          <visual name="visual">
-            <geometry>
-              <box>
-                <size>.2 .2 .2</size>
-              </box>
-            </geometry>
-          </visual>
-        </link>
+        <include>
+          <uri>model://kinect-plugin</uri>
+        </include>
           <plugin name="animated_box_plugin" filename="libactor_lib.so">
             <velocity>0.25</velocity>
-            <acceleration>0.1</acceleration>
+            <acceleration>0.0</acceleration>
           </plugin>
       </actor>
 
