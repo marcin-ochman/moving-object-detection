@@ -3,11 +3,11 @@
 namespace gazebo {
     constexpr double defaultVelocity = 0.5;
     constexpr double defaultAcceleration = 0.0;
+    constexpr double defaultTargetDistanceApproximation = 0.05;
+    constexpr bool defaultInLoop = true;
 
     ActorPlugin::ActorPlugin() : ModelPlugin()
     {
-        currentTarget = ignition::math::Vector3d(1, 0, 0.0);
-        sign = 1;
         prev_time=0;
     }
 
@@ -20,28 +20,42 @@ namespace gazebo {
 
         auto getParam = [_sdf]<class T>(const std::string& paramName, T defaultValue) {
             if(_sdf->HasElement(paramName))
-                return _sdf->Get<double>(paramName);
+                return _sdf->Get<T>(paramName);
             else
                 return defaultValue;
         };
 
         modelMovement.velocity = getParam("velocity", defaultVelocity);
         modelMovement.acceleration = getParam("acceleration", defaultAcceleration);
+        inLoop = getParam("loop", defaultInLoop);
+        targetDistanceApproximation = getParam("target_approximation", defaultTargetDistanceApproximation);
+
+        ReadTrajectory(_sdf);
+        currentTarget = modelMovement.trajectoryPoints.begin();
     }
 
     void ActorPlugin::OnUpdate(const common::UpdateInfo &info)
     {
+        if(modelMovement.trajectoryPoints.begin() == modelMovement.trajectoryPoints.end())
+            return;
         double dt = (info.simTime - prev_time).Double();
         ignition::math::Pose3d actorPose = actor->WorldPose();
-        auto distance = (currentTarget - actorPose.Pos()).Length();
+        auto distance = (currentTarget->Pos() - actorPose.Pos()).Length();
 
-        if(distance< 0.05)
+        if(distance< targetDistanceApproximation)
         {
-            sign *= -1;
-            currentTarget.X(currentTarget.X()*sign);
+            if(std::next(currentTarget)==modelMovement.trajectoryPoints.end())
+            {
+                if(inLoop)
+                    currentTarget = modelMovement.trajectoryPoints.begin();
+                else
+                    return;
+            }
+            else
+                currentTarget = std::next(currentTarget);
         }
 
-        auto direction = (currentTarget - actorPose.Pos()).Normalize();
+        auto direction = (currentTarget->Pos() - actorPose.Pos()).Normalize();
         actorPose.Pos() += direction * dt * modelMovement.velocity;
 
         double distanceTraveled = (actorPose.Pos() -
@@ -52,6 +66,20 @@ namespace gazebo {
 
         modelMovement.velocity += modelMovement.acceleration * dt;
         prev_time += dt;
+    }
+
+    void ActorPlugin::ReadTrajectory(sdf::ElementPtr _sdf)
+    {
+        if (_sdf->HasElement("trajectory"))
+        {
+            sdf::ElementPtr modelElem =
+                    _sdf->GetElement("trajectory")->GetElement("pose");
+            while (modelElem)
+            {
+                modelMovement.trajectoryPoints.push_back(modelElem->Get<ignition::math::Pose3d>());
+                modelElem = modelElem->GetNextElement("pose");
+            }
+        }
     }
 
     GZ_REGISTER_MODEL_PLUGIN(ActorPlugin)

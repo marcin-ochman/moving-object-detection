@@ -12,8 +12,7 @@ namespace gazebo {
     {
         double velocity;
         double acceleration;
-        ignition::math::Vector3d startPosition;
-        ignition::math::Vector3d endPosition;
+        std::vector<ignition::math::Pose3d> trajectoryPoints;
     };
 
 
@@ -24,14 +23,16 @@ namespace gazebo {
     private:
 
     void OnUpdate(const common::UpdateInfo &_info);
+    void ReadTrajectory(sdf::ElementPtr _sdf);
     std::vector <event::ConnectionPtr> connections;
 
     physics::ActorPtr actor;
 
-    ignition::math::Vector3d currentTarget;
+    std::vector<ignition::math::Pose3d>::iterator currentTarget;
     double prev_time;
-    int sign;
 
+    double targetDistanceApproximation;
+    bool inLoop;
     Movement modelMovement;
 };
 }

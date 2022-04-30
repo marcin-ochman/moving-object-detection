@@ -12,13 +12,19 @@
     </include>
 
     <!-- test actor -->
-    <actor name="animated_box">
+    <actor name="animated_kinect">
+        <pose>0.0 -1.0 0.5 0 0 0</pose>
         <include>
           <uri>model://kinect-plugin</uri>
         </include>
-          <plugin name="animated_box_plugin" filename="libactor_lib.so">
+          <plugin name="animated_kinect_plugin" filename="libactor_lib.so">
             <velocity>0.25</velocity>
-            <acceleration>0.0</acceleration>
+            <loop>true</loop>
+            <target_approximation>0.05</target_approximation>
+            <trajectory>
+                <pose>0.0 -1.0 0.5 0 0 0</pose>
+                <pose>0.0 1.0 0.5 0 0 0</pose>
+            </trajectory>
           </plugin>
       </actor>
 
