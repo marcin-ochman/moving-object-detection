@@ -32,8 +32,6 @@ class MotionDetectionNode:
 
         depth_sub = message_filters.Subscriber("depth", Image)
 
-        _sub = message_filters.Subscriber("image", Image)
-
         ts = message_filters.TimeSynchronizer([rgb_sub, rgb_info_sub, depth_sub], 10)
         ts.registerCallback(self.image_callback)
 
@@ -57,19 +55,32 @@ class MotionDetectionNode:
         matches = self.feature_matcher.get_matches(self.prev_image_points.get("descriptors"),
                                                    current_points.get("descriptors"))
 
+        keypoints = current_points['keypoints']
+        prev_keypoints = self.prev_image_points["keypoints"]
+
+        keypoints_2d = np.empty((len(matches), 2))
+        prev_keypoints_2d = np.empty((len(matches), 2))
+        for idx, match in enumerate(matches):
+            keypoints_2d[idx, :] = keypoints[match.trainIdx].pt
+            prev_keypoints_2d[idx, :] = prev_keypoints[match.queryIdx].pt
+
+        if len(matches) <= 5:
+            self.prev_image_points = current_points
+            self.prev_img = image
+            self.prev_depth_img = depth
+            return
+
         if self.prev_img is not None:
             cv2.imshow("Feature points", cv2.drawMatches( self.prev_img, self.prev_image_points["keypoints"],
                                                           image, current_points['keypoints'], matches, None))
             cv2.waitKey(1)
 
-            # self.estimate_camera_movement(current_points['keypoints'],
-            #                               self.prev_image_points['keypoints'],
-            #                               matches, depth, self.prev_depth_img, self.K)
             Rt = self.estimate_camera_movement(image, self.prev_img, depth, self.prev_depth_img)
+            points3d = self.keypoints_to_3d(keypoints_2d, depth, self.K)
+            prev_points3d = self.keypoints_to_3d(prev_keypoints_2d, self.prev_depth_img, self.K)
 
-            self.position = np.matmul(self.position, Rt)
+            self.classify_points(Rt, points3d, prev_points3d, )
 
-            rospy.logwarn('\n --------- \n t: {}\n --------- \n'.format(self.position[:, 3]))
 
         self.prev_image_points = current_points
         self.prev_img = image
@@ -83,6 +94,34 @@ class MotionDetectionNode:
                                        dst_frame.image, dst_frame.depth, None)
 
         return Rt if success else np.eye(4)
+
+    def keypoints_to_3d(self, points2d, depth, K):
+        cx = K[0, 2]
+        cy = K[1, 2]
+        fx = K[0, 0]
+        fy = K[1, 1]
+
+        img_coordinates = points2d.astype(np.int32)
+        points3d = np.empty((img_coordinates.shape[0], 3))
+        z = depth[img_coordinates[:, 1], img_coordinates[:, 0]].reshape(img_coordinates.shape[0], 1).reshape(img_coordinates.shape[0], 1)
+        points3d[:, 0:2] = (points2d - [cx, cy])  * z / [fx, fy]
+        points3d[:, 2] = z.flatten()
+
+        return points3d
+        # point_3d = np..reshape(img_coordinates.shape[0], 1)array([(point[0] - cx) * depth[int(point[1]), int(point[0])]/fx,
+        #                      (point[1] - cy) * depth[int(point[1]), int(point[0])]/fy,
+        #                      depth[int(point[1]), int(point[0])]]).T
+
+
+    def classify_points(self, camera_Rt, points, previous_points):
+        R = camera_Rt[0:3, 0:3]
+        t = camera_Rt[0:3, 3].reshape(3, 1)
+
+        result = np.linalg.norm(np.matmul(R, previous_points.T) + t - points.T, axis=0)
+
+        rospy.logerr(result)
+
+        return None
 
 
     # def estimate_camera_movement(self, keypoints, prev_keypoints, matches, depth, prev_depth, K):
@@ -115,28 +154,28 @@ class MotionDetectionNode:
     #     self.position += scale * np.matmul(self.rotation, t)
     #     self.rotation = np.matmul(R, self.rotation)
 
-    def estimate_scale(self, point, prev_point, depth, prev_depth,K, R):
-        cx = K[0, 2]
-        cy = K[1, 2]
-        fx = K[0, 0]
-        fy = K[1, 1]
+    # def estimate_scale(self, point, prev_point, depth, prev_depth,K, R):
+    #     cx = K[0, 2]
+    #     cy = K[1, 2]
+    #     fx = K[0, 0]
+    #     fy = K[1, 1]
 
-        point_3d = np.array([(point[0] - cx) * depth[int(point[1]), int(point[0])]/fx,
-                             (point[1] - cy) * depth[int(point[1]), int(point[0])]/fy,
-                             depth[int(point[1]), int(point[0])]]).T
+    #     point_3d = np.array([(point[0] - cx) * depth[int(point[1]), int(point[0])]/fx,
+    #                          (point[1] - cy) * depth[int(point[1]), int(point[0])]/fy,
+    #                          depth[int(point[1]), int(point[0])]]).T
 
-        prev_point_3d = np.array([(prev_point[0] - cx) * prev_depth[int(prev_point[1]), int(prev_point[0])]/fx,
-                                  (prev_point[1] - cy) * prev_depth[int(prev_point[1]), int(prev_point[0])]/fy,
-                                  prev_depth[int(prev_point[1]), int(prev_point[0])]]).T
+    #     prev_point_3d = np.array([(prev_point[0] - cx) * prev_depth[int(prev_point[1]), int(prev_point[0])]/fx,
+    #                               (prev_point[1] - cy) * prev_depth[int(prev_point[1]), int(prev_point[0])]/fy,
+    #                               prev_depth[int(prev_point[1]), int(prev_point[0])]]).T
 
-        rospy.logwarn('\n----------- \n\n Pn:\n {0} \n Pn-1:\n {1}\n R:\n {4} \n RXn-1: {3} \n scale: {2}\n ------------\n\n'.format(point_3d,
-                                                                                                      prev_point_3d,
-                                                                                                                        np.linalg.norm(point_3d - np.matmul(R, prev_point_3d)),
-                                                                                                                            (point_3d - np.matmul(R, prev_point_3d)).flatten(),
-                                                                                                                            R
-                                                                                                      ))
+    #     rospy.logwarn('\n----------- \n\n Pn:\n {0} \n Pn-1:\n {1}\n R:\n {4} \n RXn-1: {3} \n scale: {2}\n ------------\n\n'.format(point_3d,
+    #                                                                                                   prev_point_3d,
+    #                                                                                                                     np.linalg.norm(point_3d - np.matmul(R, prev_point_3d)),
+    #                                                                                                                         (point_3d - np.matmul(R, prev_point_3d)).flatten(),
+    #                                                                                                                         R
+    #                                                                                                   ))
 
-        return np.linalg.norm(point_3d - np.matmul(R, prev_point_3d))
+    #     return np.linalg.norm(point_3d - np.matmul(R, prev_point_3d))
 
 
 
