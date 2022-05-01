@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <sdf version="1.5">
-  <world name="static_world_moving_kinect">
+  <world name="dynamic_and_static_world_moving_kinect">
 
   <light type="directional" name="sun">
     <cast_shadows>true</cast_shadows>
@@ -78,5 +78,38 @@
             </trajectory>
           </plugin>
       </actor>
+
+  <!-- dynamic models -->
+    <actor name="hatchback">
+        <pose>16 0.3 0 0 0 3.15</pose>
+        <include>
+          <uri>model://hatchback</uri>
+        </include>
+          <plugin name="animated_hatchback_plugin" filename="libactor_lib.so">
+            <velocity>2.5</velocity>
+            <loop>true</loop>
+            <target_approximation>0.05</target_approximation>
+            <trajectory>
+                <pose>16 0.3 0 0 0 3.15</pose>
+                <pose>6.5 0.3 0 0 0 3.15</pose>
+            </trajectory>
+          </plugin>
+    </actor>
+
+    <actor name="suv">
+        <pose>-0.4 5 0 0 0 -0.93</pose>
+        <include>
+          <uri>model://suv</uri>
+        </include>
+          <plugin name="animated_suv_plugin" filename="libactor_lib.so">
+            <velocity>3</velocity>
+            <loop>true</loop>
+            <target_approximation>0.05</target_approximation>
+            <trajectory>
+                <pose>-0.4 5 0 0 0 -0.93</pose>
+                <pose>7 -5 0 0 0 -0.93</pose>
+            </trajectory>
+          </plugin>
+    </actor>
   </world>
 </sdf>
