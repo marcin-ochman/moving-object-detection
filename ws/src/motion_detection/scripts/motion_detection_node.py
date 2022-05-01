@@ -55,31 +55,48 @@ class MotionDetectionNode:
         matches = self.feature_matcher.get_matches(self.prev_image_points.get("descriptors"),
                                                    current_points.get("descriptors"))
 
-        keypoints = current_points['keypoints']
-        prev_keypoints = self.prev_image_points["keypoints"]
-
-        keypoints_2d = np.empty((len(matches), 2))
-        prev_keypoints_2d = np.empty((len(matches), 2))
-        for idx, match in enumerate(matches):
-            keypoints_2d[idx, :] = keypoints[match.trainIdx].pt
-            prev_keypoints_2d[idx, :] = prev_keypoints[match.queryIdx].pt
-
         if len(matches) <= 5:
+            self.prev_keypoint_weights = np.zeros(len(current_points['keypoints']))
             self.prev_image_points = current_points
             self.prev_img = image
             self.prev_depth_img = depth
             return
 
+        keypoints = current_points['keypoints']
+        prev_keypoints = self.prev_image_points["keypoints"]
+
+        keypoints_2d = np.empty((len(matches), 2))
+        prev_keypoints_2d = np.empty((len(matches), 2))
+        weights = np.zeros(len(matches))
+        for idx, match in enumerate(matches):
+            keypoints_2d[idx, :] = keypoints[match.trainIdx].pt
+            prev_keypoints_2d[idx, :] = prev_keypoints[match.queryIdx].pt
+            weights[idx] = self.prev_keypoint_weights[match.queryIdx]
+
+
         if self.prev_img is not None:
-            cv2.imshow("Feature points", cv2.drawMatches( self.prev_img, self.prev_image_points["keypoints"],
-                                                          image, current_points['keypoints'], matches, None))
-            cv2.waitKey(1)
+            # cv2.imshow("Feature points", cv2.drawMatches( self.prev_img, self.prev_image_points["keypoints"],
+            #                                               image, current_points['keypoints'], matches, None))
+            # cv2.waitKey(1)
 
             Rt = self.estimate_camera_movement(image, self.prev_img, depth, self.prev_depth_img)
             points3d = self.keypoints_to_3d(keypoints_2d, depth, self.K)
             prev_points3d = self.keypoints_to_3d(prev_keypoints_2d, self.prev_depth_img, self.K)
 
-            self.classify_points(Rt, points3d, prev_points3d, )
+            new_weights = self.classify_points(Rt, points3d, prev_points3d, weights)
+
+            rospy.logerr(np.count_nonzero(new_weights > 0.5))
+
+            keypoints_to_draw = []
+            self.prev_keypoint_weights = np.zeros(len(keypoints))
+            for idx, match in enumerate(matches):
+                self.prev_keypoint_weights[match.trainIdx] = new_weights[idx]
+                if new_weights[idx] > 0.5:
+                    keypoints_to_draw.append(keypoints[match.trainIdx])
+
+            cv2.imshow("moving points",
+                       cv2.drawKeypoints(image, keypoints_to_draw, None))
+            cv2.waitKey(1)
 
 
         self.prev_image_points = current_points
@@ -108,21 +125,16 @@ class MotionDetectionNode:
         points3d[:, 2] = z.flatten()
 
         return points3d
-        # point_3d = np..reshape(img_coordinates.shape[0], 1)array([(point[0] - cx) * depth[int(point[1]), int(point[0])]/fx,
-        #                      (point[1] - cy) * depth[int(point[1]), int(point[0])]/fy,
-        #                      depth[int(point[1]), int(point[0])]]).T
 
-
-    def classify_points(self, camera_Rt, points, previous_points):
+    def classify_points(self, camera_Rt, points, previous_points, weights):
+        epsilon = 5e-2
+        update_weight = 0.4
         R = camera_Rt[0:3, 0:3]
         t = camera_Rt[0:3, 3].reshape(3, 1)
 
-        result = np.linalg.norm(np.matmul(R, previous_points.T) + t - points.T, axis=0)
+        distance_classification = np.linalg.norm(np.matmul(R, previous_points.T) + t - points.T, axis=0) >= epsilon
 
-        rospy.logerr(result)
-
-        return None
-
+        return distance_classification * update_weight +  (1 - update_weight) * weights
 
     # def estimate_camera_movement(self, keypoints, prev_keypoints, matches, depth, prev_depth, K):
     #     keypoints_pts = np.empty((len(matches), 2))
