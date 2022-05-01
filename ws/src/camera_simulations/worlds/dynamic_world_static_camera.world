@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<sdf version="1.5">
+  <world name="dynamic_world_static_camera">
+
+  <light type="directional" name="sun">
+    <cast_shadows>true</cast_shadows>
+    <pose>0 0 15 0 0 0</pose>
+    <diffuse>0.8 0.8 0.8 1</diffuse>
+    <specular>0.2 0.2 0.2 1</specular>
+    <attenuation>
+      <range>1000</range>
+      <constant>0.9</constant>
+      <linear>0.01</linear>
+      <quadratic>0.001</quadratic>
+    </attenuation>
+    <direction>1 0.1 -0.9</direction>
+  </light>
+
+  <include>
+    <uri>model://pavement</uri>
+    <pose>0 0 0 0 0 0</pose>
+  </include>
+
+  <!-- static kinect -->
+  <model name="kinect">
+  <include>
+    <uri>model://kinect-plugin</uri>
+    <pose>0 0 1 0 0 0</pose>
+    <static>1</static>
+  </include>
+  </model>
+
+  <!-- dynamic models -->
+    <actor name="suv">
+        <pose>0.6 -9 0 0 0 0.53</pose>
+        <include>
+          <uri>model://suv</uri>
+        </include>
+          <plugin name="animated_suv_plugin" filename="libactor_lib.so">
+            <velocity>3</velocity>
+            <loop>true</loop>
+            <target_approximation>0.05</target_approximation>
+            <trajectory>
+                <pose>0.6 -9 0 0 0 0.53</pose>
+                <pose>21 3 0 0 0 0.53</pose>
+            </trajectory>
+          </plugin>
+    </actor>
+
+    <actor name="fire_truck">
+        <pose>32 0 0 0 0 1.5708</pose>
+        <include>
+          <uri>model://fire_truck</uri>
+        </include>
+          <plugin name="animated_fire_truck_plugin" filename="libactor_lib.so">
+            <velocity>0.5</velocity>
+            <loop>true</loop>
+            <target_approximation>0.05</target_approximation>
+            <trajectory>
+                <pose>32 0 0 0 0 1.5708</pose>
+                <pose>20 0 0 0 0 1.5708</pose>
+            </trajectory>
+          </plugin>
+    </actor>
+
+    <actor name="pickup">
+        <pose>10.5 -15 0 0 0 1.9</pose>
+        <include>
+          <uri>model://pickup</uri>
+        </include>
+          <plugin name="animated_pickup_plugin" filename="libactor_lib.so">
+            <velocity>5</velocity>
+            <loop>true</loop>
+            <target_approximation>0.05</target_approximation>
+            <trajectory>
+                <pose>10.5 -15 0 0 0 1.9</pose>
+                <pose>3.3 6 0 0 0 1.9</pose>
+            </trajectory>
+          </plugin>
+    </actor>
+
+    <actor name="hatchback">
+        <pose>10 10 0 0 0 -1.57</pose>
+        <include>
+          <uri>model://hatchback</uri>
+        </include>
+          <plugin name="animated_hatchback_plugin" filename="libactor_lib.so">
+            <velocity>2.5</velocity>
+            <loop>true</loop>
+            <target_approximation>0.05</target_approximation>
+            <trajectory>
+                <pose>10 10 0 0 0 -1.57</pose>
+                <pose>10 -10 0 0 0 -1.57</pose>
+            </trajectory>
+          </plugin>
+    </actor>
+
+
+  </world>
+</sdf>
