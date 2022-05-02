@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
 project(camera_simulations)
 
-# Load catkin and all dependencies required for this package
-find_package(catkin REQUIRED COMPONENTS 
+find_package(gazebo REQUIRED)
+include_directories(${GAZEBO_INCLUDE_DIRS})
+link_directories(${GAZEBO_LIBRARY_DIRS})
+list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
+
+find_package(catkin REQUIRED COMPONENTS
   rospy
   gazebo_ros 
   std_msgs
@@ -10,11 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2
   tf2_ros
 )
-## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
-
-# Depend on system install of Gazebo
-find_package(gazebo REQUIRED)
 
 catkin_package(
   DEPENDS 
@@ -22,4 +22,5 @@ catkin_package(
     gazebo_ros 
 )
 
-
+add_library(actor_lib SHARED plugins/actor_plugin.cpp)
+target_link_libraries(actor_lib ${GAZEBO_LIBRARIES})

@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<sdf version="1.5">
+  <world name="dynamic_and_static_world_moving_kinect">
+
+  <light type="directional" name="sun">
+    <cast_shadows>true</cast_shadows>
+    <pose>0 0 15 0 0 0</pose>
+    <diffuse>0.8 0.8 0.8 1</diffuse>
+    <specular>0.2 0.2 0.2 1</specular>
+    <attenuation>
+      <range>1000</range>
+      <constant>0.9</constant>
+      <linear>0.01</linear>
+      <quadratic>0.001</quadratic>
+    </attenuation>
+    <direction>1 0.1 -0.9</direction>
+  </light>
+
+    <!-- static world -->
+    <include>
+      <uri>model://pavement</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://bus</uri>
+      <pose>10 10 0 0 0 0</pose>
+      <static>1</static>
+    </include>
+
+    <include>
+      <uri>model://fast_food</uri>
+      <pose>20 -10 0 0 0 0</pose>
+      <static>1</static>
+    </include>
+
+    <include>
+      <uri>model://school</uri>
+      <pose>32 9 0 0 0 -1.55</pose>
+      <static>1</static>
+    </include>
+
+    <include>
+      <uri>model://ambulance</uri>
+      <pose>4.5 6 0 0 0 0</pose>
+      <static>1</static>
+    </include>
+
+    <model name="oak_tree1">
+    <include>
+      <uri>model://oak_tree</uri>
+      <pose>22 4 0 0 0 0</pose>
+      <static>1</static>
+    </include>
+    </model>
+
+    <model name="oak_tree2">
+    <include>
+      <uri>model://oak_tree</uri>
+      <pose>22 8 0 0 0 -0.9</pose>
+      <static>1</static>
+    </include>
+    </model>
+
+    <!-- moving kinect -->
+    <actor name="animated_kinect">
+        <pose>0.0 1.0 1.0 0 0 0</pose>
+        <include>
+          <uri>model://kinect-plugin</uri>
+        </include>
+          <plugin name="animated_kinect_plugin" filename="libactor_lib.so">
+            <velocity>0.5</velocity>
+            <loop>true</loop>
+            <target_approximation>0.05</target_approximation>
+            <trajectory>
+                <pose>0.0 1.0 1.0 0 0 0</pose>
+                <pose>0.0 -1.0 1.0 0 0 0</pose>
+            </trajectory>
+          </plugin>
+      </actor>
+
+  <!-- dynamic models -->
+    <actor name="hatchback">
+        <pose>16 0.3 0 0 0 3.15</pose>
+        <include>
+          <uri>model://hatchback</uri>
+        </include>
+          <plugin name="animated_hatchback_plugin" filename="libactor_lib.so">
+            <velocity>2.5</velocity>
+            <loop>true</loop>
+            <target_approximation>0.05</target_approximation>
+            <trajectory>
+                <pose>16 0.3 0 0 0 3.15</pose>
+                <pose>6.5 0.3 0 0 0 3.15</pose>
+            </trajectory>
+          </plugin>
+    </actor>
+
+    <actor name="suv">
+        <pose>-0.4 5 0 0 0 -0.93</pose>
+        <include>
+          <uri>model://suv</uri>
+        </include>
+          <plugin name="animated_suv_plugin" filename="libactor_lib.so">
+            <velocity>3</velocity>
+            <loop>true</loop>
+            <target_approximation>0.05</target_approximation>
+            <trajectory>
+                <pose>-0.4 5 0 0 0 -0.93</pose>
+                <pose>7 -5 0 0 0 -0.93</pose>
+            </trajectory>
+          </plugin>
+    </actor>
+  </world>
+</sdf>
