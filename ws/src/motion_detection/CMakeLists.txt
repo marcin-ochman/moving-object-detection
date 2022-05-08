@@ -14,5 +14,6 @@ catkin_package(
 )
 catkin_install_python(PROGRAMS
         scripts/motion_detection_node.py
+        scripts/rgbd_publisher.py
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
         )

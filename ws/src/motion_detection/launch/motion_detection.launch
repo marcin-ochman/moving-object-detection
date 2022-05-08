@@ -2,17 +2,24 @@
 <launch>
   <arg name="image_topic" default="/camera/color/image_raw"/>
   <arg name="camera_info_topic" default="/camera/color/camera_info"/>
-  <arg name="max_matches_number" default="10"/>
+  <arg name="max_matches_number" default="100"/>
   <arg name="world_name" default="moving_kinect.world"/>
+  <arg name="base_dir" default="/moving_object_ws/data/"/>
+  <arg name="threshold" default="0.9"/>
+  <arg name="gamma" default="0.1"/>
+
 
   <rosparam param="/max_matches_number" subst_value="True">$(arg max_matches_number)</rosparam>
 
-  <include file="$(find camera_simulations)/launch/gazebo_world.launch">
-      <arg name="world_name" value="$(arg world_name)"/>
-  </include>
+  <!-- <include file="$(find camera_simulations)/launch/gazebo_world.launch"> -->
+  <!--     <arg name="world_name" value="$(arg world_name)"/> -->
+  <!-- </include> -->
 
-  <!-- <node name="motion_detection_node" pkg="motion_detection" type="motion_detection_node.py"> -->
-  <!--   <remap from="image" to="$(arg image_topic)" /> -->
-  <!--   <remap from="camera_info" to="$(arg camera_info_topic)" /> -->
-  <!-- </node> -->
+  <node name="motion_detection_node" pkg="motion_detection" type="motion_detection_node.py"
+        args="--threshold $(arg threshold) --gamma $(arg gamma)">
+  </node>
+
+  <node name="images_publisher" pkg="motion_detection" type="rgbd_publisher.py"
+        args="--rgb $(arg base_dir)/rgb --depth $(arg base_dir)/depth --mask $(arg base_dir)/masks">
+  </node>
 </launch>
