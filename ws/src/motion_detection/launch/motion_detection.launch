@@ -7,6 +7,7 @@
   <arg name="base_dir" default="/moving_object_ws/data/"/>
   <arg name="threshold" default="0.9"/>
   <arg name="gamma" default="0.1"/>
+  <arg name="mu" default="0.005"/>
 
 
   <rosparam param="/max_matches_number" subst_value="True">$(arg max_matches_number)</rosparam>
@@ -16,7 +17,7 @@
   <!-- </include> -->
 
   <node name="motion_detection_node" pkg="motion_detection" type="motion_detection_node.py"
-        args="--threshold $(arg threshold) --gamma $(arg gamma)">
+        args="--threshold $(arg threshold) --gamma $(arg gamma) --mu $(arg mu)">
   </node>
 
   <node name="images_publisher" pkg="motion_detection" type="rgbd_publisher.py"

@@ -32,7 +32,7 @@ class FeatureMatcher:
 
 
 class MotionDetectionNode:
-    def __init__(self, threshold=0.7, gamma=0.4):
+    def __init__(self, threshold=0.7, gamma=0.4, mu=0.001):
         rgb_sub = message_filters.Subscriber("rgb", Image)
         rgb_info_sub = message_filters.Subscriber("camera_info", CameraInfo)
 
@@ -52,6 +52,7 @@ class MotionDetectionNode:
 
         self.threshold = threshold
         self.gamma = gamma
+        self.mu = mu
 
         self.alg = cv2.rgbd.Odometry_create('RgbdICPOdometry')
 
@@ -92,6 +93,7 @@ class MotionDetectionNode:
             points3d = self.keypoints_to_3d(keypoints_2d, depth, self.K)
             prev_points3d = self.keypoints_to_3d(prev_keypoints_2d, self.prev_depth_img, self.K)
 
+            # rospy.logerr(weights.flatten())
             new_weights = self.classify_points(Rt, points3d, prev_points3d, weights)
 
             keypoints_to_draw = []
@@ -136,7 +138,7 @@ class MotionDetectionNode:
         return points3d
 
     def classify_points(self, camera_Rt, points, previous_points, weights):
-        epsilon = 0.1
+        epsilon = self.mu
         update_weight = self.gamma
         R = camera_Rt[0:3, 0:3]
         t = camera_Rt[0:3, 3].reshape(3, 1)
@@ -149,7 +151,7 @@ class MotionDetectionNode:
         return mask[points[:, 1].astype(np.int32), points[:, 0].astype(np.int32)] > 0
 
     def dump_stats(self):
-        out_path = '/moving_object_ws/data/results/result_theta_{}_threshold_{}.json'.format(self.gamma, self.threshold)
+        out_path = '/moving_object_ws/data/results/result_theta_{}_threshold_{}_mu_{}.json'.format(self.gamma, self.threshold, self.mu)
         pd_cm = pd.DataFrame(self.confusion_matrix, dtype=int)
         stats = {
             'gamma': self.gamma,
@@ -171,10 +173,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='RGBD with mask publisher')
     parser.add_argument('--threshold', type=float, help='Threshold for weights')
     parser.add_argument('--gamma', type=float, help='Update weight')
+    parser.add_argument('--mu', type=float, help='Threshold for distance')
+
 
     argv = rospy.myargv()
     args = parser.parse_args(argv[1:])
+    rospy.loginfo(f"Testing Gamma: {args.gamma}  Threshold: {args.threshold} \n Mu: {args.mu}")
 
-    motion_detection_node = MotionDetectionNode(args.threshold, args.gamma)
+    motion_detection_node = MotionDetectionNode(args.threshold, args.gamma, args.mu)
     rospy.on_shutdown(motion_detection_node.dump_stats)
     rospy.spin()
