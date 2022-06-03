@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
         cv_bridge
         rospy
         sensor_msgs
+        gazebo_msgs
         )
 find_package(OpenCV REQUIRED)
 
@@ -15,5 +16,6 @@ catkin_package(
 catkin_install_python(PROGRAMS
         scripts/motion_detection_node.py
         scripts/rgbd_publisher.py
+        scripts/actor_pose_dumper.py
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
         )

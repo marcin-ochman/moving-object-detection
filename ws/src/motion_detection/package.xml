@@ -12,5 +12,5 @@
   <depend>rospy</depend>
   <depend>cv_bridge</depend>
   <depend>sensor_msgs</depend>
-
+  <depend>gazebo_msgs</depend>
 </package>
